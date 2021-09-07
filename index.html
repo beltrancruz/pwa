@@ -10,23 +10,53 @@
 </head>
 <body>
     <main>
-        <div class="container my-5">
-            <div class="row">
-                <div class="col my-3">
-                    <div class="my-2">
-                        <input id="one" type="text" placeholder="uno" class="form-control"/>
-                    </div>
-                    <div class="my-2">
-                        <input id="two" type="text" placeholder="dos" class="form-control"/>
-                    </div>
-                    <div class="my-2">
-                        <button onclick="agregar()" class="btn btn-primary float-end">Add <i class="fas fa-plus"></i></button>
-                    </div>
+        <div class="container my-5 ">
+            <div class="row mb-5 g-4">
+                <div class="col">
+                    <input id="one" type="text" placeholder="Nombre" class="form-control"/>
+                </div>
+                <div class="col">
+                    <input id="two" type="text" placeholder="Officio" class="form-control"/>
+                </div>
+                <div class="col-1">
+                    <button onclick="agregar()" class="btn btn-primary float-end rounded-circle"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
-            <div>
-                <div id="elementos" class="col">
-                    <div class="card"><div class="card-body"><b>text</b></div></div>
+            <div id="elementos" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            </div>
+        </div>
+        <div>
+            <div class="modal fade" id="userview" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                  <div class="col">
+                                    <img id="c-img" src="" class="card-img-top rounded-circle" alt="user">
+                                  </div>
+                                  <div class="col">
+                                        <hr>
+                                        <h5>Email</h5>
+                                        <b id="c-email">...</b>
+                                        <hr>
+                                        <h5>Name</h5>
+                                        <p id="c-name">...</p>
+                                        <hr>
+                                  </div>
+                                </div>
+                              </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -44,7 +74,10 @@
                     let elementos = document.getElementById("elementos")
                     let tarjetas =  "";
                     for (let obj of data.data) {
-                        let tarjeta = "<div class='card my-3'><div class='card-body'><b>"+obj.email+"</b><br>"+obj.first_name +" "+ obj.last_name+"<br><button onclick='eliminar("+obj.id+")' class='btn btn-danger float-end'>Delete <i class='fas fa-trash'></i></button></div></div>"
+                        // style='width: 18rem;'
+                        
+                        let tarjeta = "<div class='col d-flex align-items-stretch'><div style='border:0px;' class='card h-100 w-100 custom'><img src='"+obj.avatar+"' class='card-img-top rounded-circle' alt='user'><div class='card-body'><p class='card-text text-center'><b>"+obj.email+"</b><br>"+obj.first_name +" "+ obj.last_name+"</p><div class='container'><div class='row'><div class='col-xs-1' align='center'><button type='button' onclick='consulta("+obj.id+")' class='btn btn-primary mt-auto align-self-start rounded-circle' data-bs-toggle='modal' data-bs-target='#userview'><i class='fas fa-eye'></i></button> <button onclick='eliminar("+obj.id+")' class='btn btn-danger rounded-circle'><i class='fas fa-trash'></i></button></div></div></div></div></div></div>"
+                        // let tarjeta = "<div class='card my-3'><div class='card-body'><b>"+obj.email+"</b><br>"+obj.first_name +" "+ obj.last_name+"<br><button onclick='eliminar("+obj.id+")' class='btn btn-danger float-end'>Delete <i class='fas fa-trash'></i></button></div></div>"
                         tarjetas+=tarjeta
                     }
                     elementos.innerHTML = tarjetas;
@@ -52,11 +85,9 @@
         }
 
         const agregar = ()=>{
-            let one = document.getElementById("one").value
-            let two = document.getElementById("two").value
             let objeto = {
-                name: one,
-                job: two
+                name: document.getElementById("one").value,
+                job: document.getElementById("two").value
             };
             fetch("https://reqres.in/api/users", {method: 'POST', body: JSON.stringify(objeto),headers:{'Content-Type': 'application/json'}})
                 .then(response => response.json())
@@ -68,7 +99,31 @@
         }
 
         const eliminar = (id)=>{
-            console.log(id);
+            fetch("https://reqres.in/api/users/"+id, {method: 'DELETE'})
+                //.then(response => response.json())
+                .then(data => {
+                    if (data.ok)
+                        alert("¡Eliminación exitosa!")
+                    consultar();
+                });
+        }
+
+        const consulta = (id)=>{
+            fetch("https://reqres.in/api/users/"+id)
+                .then(response => response.json())
+                .then(data => {
+                    let user = data.data;
+                    console.log(user);
+                    let title = document.getElementById("exampleModalLabel")
+                    title.innerText = user.first_name + " " + user.last_name; 
+                    let img = document.getElementById("c-img")
+                    img.src = user.avatar;
+                    let email = document.getElementById("c-email")
+                    email.innerText = user.email;
+                    let name = document.getElementById("c-name")
+                    name.innerText = user.first_name + " " + user.last_name; 
+
+                });
         }
 
 
